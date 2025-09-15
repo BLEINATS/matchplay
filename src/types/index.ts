@@ -9,15 +9,29 @@ export interface Arena {
   name: string;
   slug: string;
   created_at: string;
+  city?: string;
+  state?: string;
+  main_image?: string;
 }
 
 export interface Profile {
   id: string;
   user_id: string;
-  arena_id: string;
+  arena_id?: string; // Opcional, usado principalmente para admin_arena
   role: 'admin_arena' | 'cliente';
-  name?: string; // Nome do cliente
+  // Campos específicos do cliente
+  name?: string;
+  avatar_url?: string;
+  birth_date?: string; // 'yyyy-MM-dd'
+  gender?: 'masculino' | 'feminino' | 'outro' | 'nao_informado';
+  clientType?: 'cliente' | 'aluno' | 'professor';
   created_at: string;
+}
+
+// NOVO: Tabela de associação entre clientes e arenas
+export interface ArenaMembership {
+  profile_id: string;
+  arena_id: string;
 }
 
 export interface QuadraComodidades {
@@ -100,7 +114,10 @@ export interface Reserva {
 export interface AuthState {
   user: User | null;
   profile: Profile | null;
-  arena: Arena | null;
+  arena: Arena | null; // Para admin
+  // Para clientes
+  memberships: ArenaMembership[];
+  selectedArenaContext: Arena | null;
   isLoading: boolean;
 }
 

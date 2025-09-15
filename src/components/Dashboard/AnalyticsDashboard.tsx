@@ -1,20 +1,43 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, CheckCircle, AlertTriangle, DollarSign, Calendar, BarChart2, TrendingUp, Wallet } from 'lucide-react';
-import { addMonths, subMonths, startOfMonth, format, startOfDay } from 'date-fns';
+import { addMonths, subMonths, startOfMonth, endOfMonth, isSameDay } from 'date-fns';
 import StatCard from './StatCard';
 import OccupancyCalendar from './OccupancyCalendar';
 import { Quadra, Reserva } from '../../types';
-import { generateCalendarDays, calculateDailyOccupancy } from '../../utils/analytics';
+import { generateCalendarDays } from '../../utils/analytics';
+import { expandRecurringReservations } from '../../utils/reservationUtils';
+import { parseDateStringAsLocal } from '../../utils/dateUtils';
+import { useAuth } from '../../context/AuthContext';
 
 interface AnalyticsDashboardProps {
-  quadras: Quadra[];
-  reservas: Reserva[];
+  onDayClick: (date: Date) => void;
 }
 
-const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ quadras, reservas }) => {
+const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ onDayClick }) => {
+  const { arena } = useAuth();
+  const [quadras, setQuadras] = useState<Quadra[]>([]);
+  const [reservas, setReservas] = useState<Reserva[]>([]);
   const [currentMonth, setCurrentMonth] = useState(startOfMonth(new Date()));
   const [selectedQuadraId, setSelectedQuadraId] = useState<'all' | string>('all');
+
+  const loadData = useCallback(() => {
+    if (arena) {
+      const savedQuadras = localStorage.getItem(`quadras_${arena.id}`);
+      if (savedQuadras) setQuadras(JSON.parse(savedQuadras));
+      const savedReservas = localStorage.getItem(`reservas_${arena.id}`);
+      if (savedReservas) setReservas(JSON.parse(savedReservas));
+    }
+  }, [arena]);
+
+  useEffect(() => {
+    loadData();
+    window.addEventListener('focus', loadData);
+    return () => {
+      window.removeEventListener('focus', loadData);
+    };
+  }, [loadData]);
+
 
   const analyticsData = useMemo(() => {
     const totalQuadras = quadras.length;
@@ -27,19 +50,20 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ quadras, reserv
     
     const receitaEstimada = quadrasAtivas * avgPrice * 8 * 30 * 0.40;
 
-    const calendarDays = generateCalendarDays(currentMonth, reservas, quadras, selectedQuadraId);
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    
+    const monthlyBookings = expandRecurringReservations(reservas, monthStart, monthEnd, quadras)
+      .filter(r => r.status !== 'cancelada');
 
-    const monthlyBookings = reservas.filter(r => {
-      const rDate = new Date(r.date);
-      return rDate.getMonth() === currentMonth.getMonth() && rDate.getFullYear() === currentMonth.getFullYear();
-    });
+    const calendarDays = generateCalendarDays(currentMonth, monthlyBookings, quadras, selectedQuadraId);
 
     const receitaDoMes = monthlyBookings.reduce((sum, r) => {
       const quadra = quadras.find(q => q.id === r.quadra_id);
       return sum + (quadra?.price_per_hour || 0);
     }, 0);
 
-    const todayBookings = monthlyBookings.filter(r => new Date(r.date).toDateString() === new Date().toDateString()).length;
+    const todayBookings = monthlyBookings.filter(r => isSameDay(parseDateStringAsLocal(r.date), new Date())).length;
 
     const dailyOccupancies = calendarDays
       .filter(d => !d.isEmpty)
@@ -91,6 +115,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ quadras, reserv
             selectedQuadraId={selectedQuadraId}
             onMonthChange={handleMonthChange}
             onQuadraChange={setSelectedQuadraId}
+            onDayClick={onDayClick}
           />
         </div>
         <div className="space-y-6">

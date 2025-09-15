@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Save, Trash2, Check, User, Phone, Tag, StickyNote, Repeat, AlertCircle } from 'lucide-react';
-import { format, addMinutes } from 'date-fns';
+import { format, addMinutes, isBefore } from 'date-fns';
 import { Reserva, Quadra, ReservationType, RecurringType } from '../../types';
 import Button from '../Forms/Button';
 import Input from '../Forms/Input';
@@ -50,8 +50,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
     };
 
     if (reservation) {
+      // MODO EDIÇÃO: Carrega os dados da reserva existente
       setFormData({ ...defaultReservationState, ...reservation });
     } else if (newReservationSlot) {
+      // MODO CRIAÇÃO (via clique no slot): Usa a data e o slot selecionados
       const quadra = quadras.find(q => q.id === newReservationSlot.quadraId);
       const endTime = newReservationSlot.time && quadra
         ? format(addMinutes(parseTime(newReservationSlot.time), quadra.booking_interval_minutes || 60), 'HH:mm')
@@ -67,9 +69,10 @@ const ReservationModal: React.FC<ReservationModalProps> = ({
         type: 'normal',
       });
     } else {
+      // MODO CRIAÇÃO (via botão "Nova Reserva"): Usa a data de hoje como padrão
       setFormData({
         ...defaultReservationState,
-        date: format(selectedDate, 'yyyy-MM-dd'),
+        date: format(new Date(), 'yyyy-MM-dd'),
       });
     }
   }, [reservation, newReservationSlot, selectedDate, quadras]);

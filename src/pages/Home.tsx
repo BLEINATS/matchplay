@@ -14,8 +14,8 @@ const Home: React.FC = () => {
     <Layout showHeader={false}>
       <div className="relative">
         <div className="absolute top-6 right-6 z-10">
-          <Button onClick={() => navigate('/cadastro-arena')} variant="outline">
-            Criar minha Arena
+          <Button onClick={() => navigate('/auth')} variant="outline">
+            Entrar / Cadastrar
           </Button>
         </div>
         <div className="bg-white dark:bg-brand-gray-950">
@@ -31,8 +31,8 @@ const Home: React.FC = () => {
                 A plataforma completa para donos de arenas gerenciarem quadras e receberem reservas online. Seus clientes reservam, você lucra.
               </motion.p>
               <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={() => navigate('/cadastro-arena')} size="lg" className="text-lg px-8 py-4">Começar gratuitamente</Button>
-                <Button onClick={() => navigate('/arena-beira-rio')} variant="outline" size="lg" className="text-lg px-8 py-4">Ver demo</Button>
+                <Button onClick={() => navigate('/auth')} size="lg" className="text-lg px-8 py-4">Começar gratuitamente</Button>
+                <Button onClick={() => navigate('/arenas')} variant="outline" size="lg" className="text-lg px-8 py-4">Explorar Arenas</Button>
               </motion.div>
             </div>
           </div>
@@ -71,7 +71,7 @@ const Home: React.FC = () => {
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
             <h2 className="text-3xl font-extrabold text-white mb-4">Pronto para começar?</h2>
             <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">Junte-se a centenas de donos de arena que já usam o MatchPlay para crescer seus negócios.</p>
-            <Button onClick={() => navigate('/cadastro-arena')} variant="secondary" size="lg" className="bg-white text-brand-blue-600 hover:bg-brand-gray-100 text-lg px-8 py-4">Criar minha arena grátis</Button>
+            <Button onClick={() => navigate('/auth')} variant="secondary" size="lg" className="bg-white text-brand-blue-600 hover:bg-brand-gray-100 text-lg px-8 py-4">Criar minha arena grátis</Button>
           </motion.div>
         </div>
       </div>

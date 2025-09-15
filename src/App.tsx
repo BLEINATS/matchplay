@@ -7,7 +7,11 @@ import Dashboard from './pages/Dashboard';
 import ArenaPublic from './pages/ArenaPublic';
 import Settings from './pages/Settings';
 import Reservations from './pages/Reservations';
-import { useTheme } from './context/ThemeContext';
+import Quadras from './pages/Quadras';
+import ClientProfile from './pages/ClientProfile';
+import AuthPortal from './pages/AuthPortal';
+import Arenas from './pages/Arenas';
+import { ThemeProvider } from './context/ThemeContext';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -20,52 +24,70 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     );
   }
 
-  return user ? <>{children}</> : <Navigate to="/cadastro-arena" />;
+  return user ? <>{children}</> : <Navigate to="/auth" />;
 };
 
 const AppRoutes: React.FC = () => {
   return (
-    <>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/cadastro-arena" element={<ArenaSignup />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/reservas"
-            element={
-              <ProtectedRoute>
-                <Reservations />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/:slug" element={<ArenaPublic />} />
-        </Routes>
-      </Router>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<AuthPortal />} />
+        <Route path="/cadastro-arena" element={<ArenaSignup />} />
+        <Route path="/arenas" element={<Arenas />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/reservas"
+          element={
+            <ProtectedRoute>
+              <Reservations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quadras"
+          element={
+            <ProtectedRoute>
+              <Quadras />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/perfil"
+          element={
+            <ProtectedRoute>
+              <ClientProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/:slug" element={<ArenaPublic />} />
+      </Routes>
+    </Router>
   );
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

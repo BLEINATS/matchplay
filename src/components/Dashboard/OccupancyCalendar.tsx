@@ -12,6 +12,7 @@ interface OccupancyCalendarProps {
   selectedQuadraId: string;
   onMonthChange: (direction: 'next' | 'prev') => void;
   onQuadraChange: (id: string) => void;
+  onDayClick: (date: Date) => void;
 }
 
 const OccupancyCalendar: React.FC<OccupancyCalendarProps> = ({
@@ -21,6 +22,7 @@ const OccupancyCalendar: React.FC<OccupancyCalendarProps> = ({
   selectedQuadraId,
   onMonthChange,
   onQuadraChange,
+  onDayClick,
 }) => {
   const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
@@ -70,10 +72,11 @@ const OccupancyCalendar: React.FC<OccupancyCalendarProps> = ({
           ) : (
             <motion.div
               key={day.key}
+              onClick={() => onDayClick(day.date)}
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.02 }}
-              className={`aspect-square flex items-center justify-center rounded-lg text-sm font-semibold transition-colors ${getOccupancyColor(day.occupancyRate)}`}
+              className={`aspect-square flex items-center justify-center rounded-lg text-sm font-semibold transition-all cursor-pointer hover:ring-2 hover:ring-brand-blue-400 ${getOccupancyColor(day.occupancyRate)}`}
               title={`Ocupação: ${day.occupancyRate.toFixed(0)}%`}
             >
               <span className="text-brand-gray-800 dark:text-brand-gray-200">{day.dayOfMonth}</span>
